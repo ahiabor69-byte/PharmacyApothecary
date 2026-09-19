@@ -27,6 +27,15 @@ async function createWindow() {
 }
 
 app.whenReady().then(createWindow);
+app.on("render-process-gone", (_event, _webContents, details) => {
+  console.error(`Renderer exited: ${details.reason}`);
+});
+process.on("uncaughtException", (error) => {
+  console.error("Electron startup error:", error);
+});
+process.on("unhandledRejection", (error) => {
+  console.error("Electron async error:", error);
+});
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") app.quit();
 });
