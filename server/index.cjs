@@ -345,6 +345,14 @@ app.patch("/api/products/:id", requireAuth, requireRole("admin"), (request, resp
 app.delete("/api/products/:id", requireAuth, requireRole("admin"), (request, response) => {
   const product = db.prepare("SELECT id, name, sku FROM products WHERE id = ?").get(request.params.id);
   if (!product) return response.status(404).json({ error: "Product not found." });
+  const saleCount = db.prepare(`
+    SELECT
+      (SELECT COUNT(*) FROM sales WHERE product_id = ?) +
+      (SELECT COUNT(*) FROM sale_items WHERE product_id = ?) AS count
+  `).get(product.id, product.id).count;
+  if (saleCount > 0) {
+    return response.status(409).json({ error: "This product has sales history and cannot be removed." });
+  }
   db.prepare("DELETE FROM products WHERE id = ?").run(product.id);
   db.prepare("INSERT INTO sync_outbox (id, entity, entity_id, operation, payload) VALUES (?, ?, ?, ?, ?)").run(randomUUID(), "products", product.id, "delete", JSON.stringify(product));
   response.status(204).end();
