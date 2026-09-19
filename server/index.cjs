@@ -266,11 +266,11 @@ app.get("/api/products", requireAuth, (_request, response) => {
   response.json(db.prepare("SELECT * FROM products ORDER BY name").all());
 });
 
-app.get("/api/expenses", requireAuth, (_request, response) => {
+app.get("/api/expenses", requireAuth, requireRole("admin"), (_request, response) => {
   response.json(db.prepare("SELECT id, category, description, amount, expense_date FROM expenses ORDER BY expense_date DESC, id DESC").all());
 });
 
-app.get("/api/reports/summary", requireAuth, (_request, response) => {
+app.get("/api/reports/summary", requireAuth, requireRole("admin"), (_request, response) => {
   const sales = db.prepare("SELECT COALESCE(SUM(quantity * selling_price), 0) AS revenue, COALESCE(SUM(quantity), 0) AS units_sold, COUNT(*) AS transactions FROM sales").get();
   const expenses = db.prepare("SELECT COALESCE(SUM(amount), 0) AS expenses FROM expenses").get();
   response.json({ revenue: Math.round(sales.revenue * 100), expenses: Math.round(expenses.expenses * 100), unitsSold: sales.units_sold, transactions: sales.transactions });
@@ -280,7 +280,7 @@ app.get("/api/history", requireAuth, (_request, response) => {
   response.json(db.prepare("SELECT sales.id, products.name, sales.quantity, sales.sold_at, sales.payment_method FROM sales JOIN products ON products.id = sales.product_id ORDER BY sales.sold_at DESC, sales.id DESC LIMIT 50").all());
 });
 
-app.post("/api/expenses", requireAuth, (request, response) => {
+app.post("/api/expenses", requireAuth, requireRole("admin"), (request, response) => {
   const expense = request.body;
   if (!expense?.category || !expense?.description || !Number.isFinite(Number(expense.amount)) || Number(expense.amount) <= 0 || !expense?.expenseDate) {
     return response.status(400).json({ error: "Category, description, positive amount, and date are required." });

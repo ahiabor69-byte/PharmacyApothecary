@@ -101,14 +101,22 @@ export default function App() {
       .then((response) => response.json())
       .then(setProducts)
       .catch(() => setProducts([]));
-    fetch("http://127.0.0.1:4317/api/expenses", { headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => response.json())
-      .then(setExpenses)
-      .catch(() => setExpenses([]));
-    fetch("http://127.0.0.1:4317/api/reports/summary", { headers: { Authorization: `Bearer ${token}` } })
-      .then((response) => response.json())
-      .then(setReportSummary)
-      .catch(() => setReportSummary({ revenue: 0, expenses: 0, unitsSold: 0, transactions: 0 }));
+    if (role === "admin") {
+      fetch("http://127.0.0.1:4317/api/expenses", { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => response.json())
+        .then(setExpenses)
+        .catch(() => setExpenses([]));
+    } else {
+      setExpenses([]);
+    }
+    if (role === "admin") {
+      fetch("http://127.0.0.1:4317/api/reports/summary", { headers: { Authorization: `Bearer ${token}` } })
+        .then((response) => response.json())
+        .then(setReportSummary)
+        .catch(() => setReportSummary({ revenue: 0, expenses: 0, unitsSold: 0, transactions: 0 }));
+    } else {
+      setReportSummary({ revenue: 0, expenses: 0, unitsSold: 0, transactions: 0 });
+    }
     fetch("http://127.0.0.1:4317/api/history", { headers: { Authorization: `Bearer ${token}` } })
       .then((response) => response.json())
       .then(setHistory)
@@ -345,7 +353,7 @@ export default function App() {
         </div>
         <nav aria-label="Primary navigation">
           <p className="nav-label">Workspace</p>
-          {navItems.map(({ label, icon: Icon }) => (
+          {navItems.filter(({ label }) => !["Expenses", "Reports"].includes(label) || user.role === "admin").map(({ label, icon: Icon }) => (
             <button className={`nav-item ${activeNav === label ? "active" : ""}`} key={label} onClick={() => setActiveNav(label)}>
               <Icon size={18} strokeWidth={1.8} />
               <span>{label}</span>
@@ -376,8 +384,8 @@ function PageContent({ activeNav, dashboard, products, expenses, history, report
   if (activeNav === "Inventory") return <InventoryPage products={products} onDeleteProduct={onDeleteProduct} onEditProduct={onEditProduct} />;
   if (activeNav === "Point of sale") return <SalesPage products={products} onCompleteSale={onCompleteSale} error={saleError} />;
   if (activeNav === "Stock history") return <HistoryPage history={history} />;
-  if (activeNav === "Expenses") return <ExpensesPage expenses={expenses} onAddExpense={onAddExpense} />;
-  if (activeNav === "Reports") return <ReportsPage dashboard={dashboard} summary={reportSummary} />;
+  if (activeNav === "Expenses" && user.role === "admin") return <ExpensesPage expenses={expenses} onAddExpense={onAddExpense} />;
+  if (activeNav === "Reports" && user.role === "admin") return <ReportsPage dashboard={dashboard} summary={reportSummary} />;
   if (activeNav === "Settings") return <SettingsPage user={user} users={users} onCreateUser={onCreateUser} onUpdateUser={onUpdateUser} onDeleteUser={onDeleteUser} onChangePassword={onChangePassword} error={settingsError} />;
   return <OverviewPage dashboard={dashboard} searchQuery={searchQuery} onSearchChange={onSearchChange} />;
 }

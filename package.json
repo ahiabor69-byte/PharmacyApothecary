@@ -8,7 +8,8 @@
   "scripts": {
     "dev": "concurrently -k \"vite --host 127.0.0.1\" \"wait-on http://127.0.0.1:5173 && NODE_ENV=development electron .\"",
     "build": "tsc --noEmit && vite build",
-    "start": "electron ."
+    "start": "electron .",
+    "migrate": "node scripts/migrate-legacy-db.cjs"
   },
   "dependencies": {
     "@types/react": "latest",
