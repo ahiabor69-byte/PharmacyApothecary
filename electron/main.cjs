@@ -3,15 +3,29 @@ const path = require("node:path");
 const { startServer } = require("../server/index.cjs");
 
 let server;
+let mainWindow;
+
+const hasSingleInstanceLock = app.requestSingleInstanceLock();
+if (!hasSingleInstanceLock) {
+  app.quit();
+}
+
+app.on("second-instance", () => {
+  if (!mainWindow) return;
+  if (mainWindow.isMinimized()) mainWindow.restore();
+  mainWindow.show();
+  mainWindow.focus();
+});
 
 async function createWindow() {
   server = await startServer();
-  const window = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: 1440,
     height: 920,
     minWidth: 1100,
     minHeight: 720,
     backgroundColor: "#f5f1e8",
+    show: false,
     webPreferences: {
       contextIsolation: true,
       nodeIntegration: false,
@@ -19,14 +33,19 @@ async function createWindow() {
   });
 
   if (process.env.NODE_ENV === "development") {
-    await window.loadURL("http://127.0.0.1:5173");
-    window.webContents.openDevTools({ mode: "detach" });
+    await mainWindow.loadURL("http://127.0.0.1:5173");
+    mainWindow.webContents.openDevTools({ mode: "detach" });
   } else {
-    await window.loadFile(path.join(__dirname, "../dist/index.html"));
+    await mainWindow.loadFile(path.join(__dirname, "../dist/index.html"));
   }
+
+  mainWindow.show();
+  mainWindow.focus();
 }
 
-app.whenReady().then(createWindow);
+if (hasSingleInstanceLock) {
+  app.whenReady().then(createWindow);
+}
 app.on("render-process-gone", (_event, _webContents, details) => {
   console.error(`Renderer exited: ${details.reason}`);
 });

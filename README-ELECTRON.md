@@ -15,6 +15,10 @@ npm install
 npm run dev
 ```
 
+The desktop launcher runs the same React web application in Electron. It starts
+the local Express API and loads the production web build from `dist/index.html`.
+If the build does not exist yet, `launch-pharmacy.sh` creates it automatically.
+
 The local API runs on `127.0.0.1:4317`. The SQLite database is still `pharmacy.db` in the project directory for this first migration slice. Existing Python data is not automatically migrated yet because the new schema uses UUIDs and integer cents for money; that conversion should happen as an explicit migration step after the domain operations are ported.
 
 ## Migrate an existing database

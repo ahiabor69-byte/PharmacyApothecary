@@ -23,6 +23,18 @@ source .venv/bin/activate
 QT_PLUGIN_PATH="$PWD/.venv/lib/python3.14/site-packages/PySide6/Qt/plugins" python app.py
 ```
 
+## Launch from the desktop
+
+The Electron version can be opened by double-clicking `PharmacyApothecary.desktop`.
+To add it to the desktop applications menu, run:
+
+```bash
+./install-desktop-launcher.sh
+```
+
+After installation, search for **Pharmacy Apothecary** in the applications menu
+and click it to launch the app.
+
 The app creates `pharmacy.db` next to `app.py`. Back up this file to preserve the
 inventory and sales history.
 

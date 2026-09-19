@@ -1,0 +1,9 @@
+[Desktop Entry]
+Version=1.0
+Type=Application
+Name=Pharmacy Apothecary
+Comment=Offline-first pharmacy retail manager
+Exec=/home/drew/Documents/Pharmacy/launch-pharmacy.sh
+Path=/home/drew/Documents/Pharmacy
+Terminal=false
+Categories=Office;

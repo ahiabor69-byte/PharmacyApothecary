@@ -327,7 +327,7 @@ app.post("/api/sales", requireAuth, (request, response) => {
   response.status(201).json({ totalCents });
 });
 
-app.patch("/api/products/:id", requireAuth, requireRole("admin", "pharmacist"), (request, response) => {
+app.patch("/api/products/:id", requireAuth, requireRole("admin"), (request, response) => {
   const product = request.body;
   if (!product?.sku || !product?.name) return response.status(400).json({ error: "SKU and medicine name are required." });
   const existing = db.prepare("SELECT id FROM products WHERE id = ?").get(request.params.id);
@@ -342,7 +342,7 @@ app.patch("/api/products/:id", requireAuth, requireRole("admin", "pharmacist"), 
   response.json(db.prepare("SELECT * FROM products WHERE id = ?").get(request.params.id));
 });
 
-app.delete("/api/products/:id", requireAuth, requireRole("admin", "pharmacist"), (request, response) => {
+app.delete("/api/products/:id", requireAuth, requireRole("admin"), (request, response) => {
   const product = db.prepare("SELECT id, name, sku FROM products WHERE id = ?").get(request.params.id);
   if (!product) return response.status(404).json({ error: "Product not found." });
   db.prepare("DELETE FROM products WHERE id = ?").run(product.id);
