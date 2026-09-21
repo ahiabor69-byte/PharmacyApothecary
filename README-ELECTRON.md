@@ -21,6 +21,19 @@ If the build does not exist yet, `launch-pharmacy.sh` creates it automatically.
 
 The local API runs on `127.0.0.1:4317`. The SQLite database is still `pharmacy.db` in the project directory for this first migration slice. Existing Python data is not automatically migrated yet because the new schema uses UUIDs and integer cents for money; that conversion should happen as an explicit migration step after the domain operations are ported.
 
+## Open it in a browser
+
+To use the same application in Chrome, Firefox, or another browser instead of
+the Electron window, run:
+
+```bash
+npm run dev:web
+```
+
+Then open <http://127.0.0.1:5173>. This starts Vite and the local API together,
+so browser sessions have the same SQLite-backed data and sign-in behavior as
+the desktop application. `npm run dev` remains the Electron development flow.
+
 ## Migrate an existing database
 
 Make a backup before migrating. To migrate the current database in place:
